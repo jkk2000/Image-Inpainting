@@ -114,3 +114,34 @@ class VGG19(nn.Module):
         self.relu_maps['r53'] = F.relu(self.conv5_3(self.relu_maps['r52']))
         self.relu_maps['r54'] = F.relu(self.conv5_4(self.relu_maps['r53']))
         return self.relu_maps   
+
+class VGG19Features(nn.Module):
+    def __init__(self):
+        super(VGG19Features, self).__init__()
+        vgg = models.vgg19(pretrained=False)
+        state_dict = torch.load(r'F:\python\DeepLearning\hhub\DFBM\inpainting_gmcnn\pytorch\checkpoints\vgg19-dcbb9e9d.pth')
+        vgg.load_state_dict(state_dict)
+        self.vgg19 = vgg.features.eval().cuda()
+        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).cuda()
+
+    def forward(self, x):
+        out = {}
+        x = x - self.mean
+        ci = 1
+        ri = 0
+        for layer in self.vgg19.children():
+            if isinstance(layer, nn.ReLU):
+                ri += 1
+                name = 'relu{}_{}'.format(ci, ri)
+                layer = nn.ReLU(inplace=False)
+            elif isinstance(layer, nn.MaxPool2d):
+                ri = 0
+                name = 'pool_{}'.format(ci)
+                ci += 1
+            x = layer(x)
+            if isinstance(layer, nn.ReLU) and ri == 1:
+                out[name] = x
+                if ci == 5:
+                    break
+        # print([x for x in out])
+        return out

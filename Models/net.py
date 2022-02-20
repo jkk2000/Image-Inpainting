@@ -11,7 +11,6 @@ from torch.optim import lr_scheduler
 
 class DMFB(nn.Module):
     def __init__(self):
-        """insert code here"""
         super(DMFB, self).__init__()
         self.conv_3 = nn.Conv2d(256, 64, 3, 1, 1)
         conv_3_sets = []
@@ -27,7 +26,6 @@ class DMFB(nn.Module):
         
         
     def forward(self, inputs):
-        """insert code here"""
         src = inputs
         x = self.act_fn(inputs)
         x = self.conv_3(x)
@@ -49,7 +47,6 @@ class DMFB(nn.Module):
 
 class DFBN(BaseNet):
     def __init__(self):
-        """insert code here"""
         super(DFBN, self).__init__()
         noOfDMFB = int(input("Enter the number of times you want the DMFB block to be run."))
         self.basemodel = nn.Sequential(
@@ -76,7 +73,6 @@ class DFBN(BaseNet):
             )
         
     def forward(self, inputs):
-        """insert code here"""
         return self.basemodel(inputs)
         
 
